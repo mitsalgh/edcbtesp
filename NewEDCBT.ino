@@ -17,8 +17,42 @@ const unsigned long checkInterval = 1000;   // Interval untuk memeriksa koneksi 
 const unsigned long nfcReadTimeout = 1000;  // Timeout untuk pembacaan NFC
 
 #define ledBT 4
+#define ledBat 31
 #define buzzer 27
+
+// Baterai Setup 
+#define bateraiIndikator 32
+#define BATTERY_PIN 32  // Pin untuk deteksi baterai
+#define ADC_MAX_VALUE 4095  // Nilai maksimum ADC untuk ESP32
+#define VOLTAGE_DIVIDER_RATIO 2.0  // Rasio pembagi tegangan (1kΩ / (1kΩ + 1kΩ))
+#define REFERENCE_VOLTAGE 3.3  // Tegangan referensi ESP32 (umumnya 3.3V)
+
+#define FULL_BATTERY_VOLTAGE 4.2  // Tegangan baterai penuh
+#define EMPTY_BATTERY_VOLTAGE 3.0  // Tegangan baterai kosong 
+
 String nfcID = "";
+
+void bateraiIndikator()
+{
+  int rawValue = analogRead(BATTERY_PIN);
+  float batteryVoltage = (rawValue * REFERENCE_VOLTAGE) / ADC_MAX_VALUE * VOLTAGE_DIVIDER_RATIO; // rumus baterai rasio ke
+  
+  // Konversi tegangan baterai ke persentase
+  float batteryPercentage = ((batteryVoltage - EMPTY_BATTERY_VOLTAGE) / (FULL_BATTERY_VOLTAGE - EMPTY_BATTERY_VOLTAGE)) * 100;
+  
+  // Batasi nilai persentase antara 0 dan 100
+  batteryPercentage = constrain(batteryPercentage, 0, 100);
+
+  Serial.print("Battery Voltage: ");
+  Serial.print(batteryVoltage);
+  Serial.print(" V, ");
+  Serial.print("Battery Percentage: ");
+  Serial.print(batteryPercentage);
+  Serial.println(" %");
+  SerialBT.print(batteryPercentage);
+  digitalWrite(ledBat,HIGH);
+  delay(1000);  // Tunggu 1 detik sebelum membaca kembali
+}
 
 void setup(void) {
   Serial.begin(115200);
@@ -26,6 +60,9 @@ void setup(void) {
   Serial.println("NFC reader initializing...");
   pinMode(ledBT, OUTPUT);
   pinMode(buzzer, OUTPUT);
+  pinMode(bateraiIndikator, INPUT);
+  pinMode(ledBat,OUTPUT);
+  analogReadResolution(12);  // ADC diubah jadi 12-bit
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
@@ -53,11 +90,13 @@ void loop(void) {
   if (currentMillis - lastCheck >= checkInterval) {
     lastCheck = currentMillis;
     bluetoothConnected = SerialBT.hasClient();
+    bateraiIndikator();
   }
 
   if (bluetoothConnected) {
     uint8_t uid[7];  // Maximum size of the UID
     uint8_t uidLength;
+    bateraiIndikator();
 
     // Memulai pendeteksian non-blocking
     nfc.startPassiveTargetIDDetection(PN532_MIFARE_ISO14443A);
@@ -129,6 +168,7 @@ void loop(void) {
       delay(100);
     }
     Serial.println("Bluetooth connected, resuming NFC reading...");
+    
     digitalWrite(ledBT, HIGH);
     for (int x = 1; x <= 3; x++) {
       digitalWrite(buzzer, HIGH);
