@@ -60,27 +60,6 @@ void bateraiIndikator() {
     Serial.println("masuk");
     // digitalWrite(gndLedBat,LOW);
   }
-  // for(int x=0;x < numSamples; x++)
-  // {
-
-  // }
-  // if (percentage > 20)
-  // {
-  //   digitalWrite(ledBat,LOW);
-  // }
-  // else if(percentage <=20)
-  // {
-  //   for(int x = 0;x<=200;x++)
-  //   {
-  //     analogWrite(ledBat,x);
-  //     delay(30);
-  //   }w
-  //   for(int x = 200;x>=0;x--)
-  //   {
-  //     analogWrite(ledBat,x);
-  //     delay(30);
-  //   }
-  // }
 
   // Print ke Serial Monitor
   Serial.print("ADC : ");
