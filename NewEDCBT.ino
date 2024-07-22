@@ -74,7 +74,7 @@ void bateraiIndikator() {
   Serial.println("masuk ini 2");
   Serial.println("masuk3");
   SerialBT.println(voltage);
-  SerialBT.println(percentage);
+  // SerialBT.println(percentage);
   Serial.println(" %");
 }
 
