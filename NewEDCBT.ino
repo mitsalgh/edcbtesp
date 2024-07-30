@@ -80,7 +80,7 @@ void bateraiIndikator() {
 
 void setup(void) {
   Serial.begin(115200);
-  SerialBT.begin("Rafi Eka");  // Nama Bluetooth
+  SerialBT.begin("amirul");  // Nama Bluetooth
   Serial.println("NFC reader initializing...");
   pinMode(ledBT, OUTPUT);
   pinMode(buzzer, OUTPUT);
