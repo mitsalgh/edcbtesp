@@ -2,7 +2,7 @@
 #include <Adafruit_PN532.h>
 #include <BluetoothSerial.h>
 
-// Pin untuk SPI
+// Pins for SPI
 #define PN532_SCK (18)
 #define PN532_MISO (19)
 #define PN532_MOSI (23)
@@ -13,8 +13,8 @@ BluetoothSerial SerialBT;
 
 bool bluetoothConnected = false;
 unsigned long lastCheck = 0;
-const unsigned long checkInterval = 1000;   // Interval untuk memeriksa koneksi Bluetooth
-const unsigned long nfcReadTimeout = 1000;  // Timeout untuk pembacaan NFC
+const unsigned long checkInterval = 1000;   // Interval to check Bluetooth connection
+const unsigned long nfcReadTimeout = 1000;  // Timeout to read NFC ID
 
 #define ledBT 4
 #define ledBat 25
@@ -25,13 +25,13 @@ const unsigned long nfcReadTimeout = 1000;  // Timeout untuk pembacaan NFC
 const int ledValue = 25;
 // Baterai Setup
 // #define bateraiIndikator 32
-// const int BATTERY_PIN = 32; // Pin ADC yang digunakan untuk membaca tegangan
-const float maxVoltage = 4.1;        // Tegangan maksimal
-const float minVoltage = 3.4;        // Tegangan minimal
-const float referenceVoltage = 4.1;  // Tegangan referensi
-const int adcMaxValue = 4095;        // Nilai maksimum ADC (12-bit ADC)
+// const int BATTERY_PIN = 32; // "ADC pin used to read voltage"
+const float maxVoltage = 4.1;        // Maximum Voltage
+const float minVoltage = 3.4;        // Minimum Voltage
+const float referenceVoltage = 4.1;  // Reference Voltage
+const int adcMaxValue = 4095;        // Maximum Value ADC (12-bit ADC)
 const float ralatBaterai = 0.04;
-const int numSamples = 500;  // Jumlah sampel untuk averaging
+const int numSamples = 500;  // sum sample for averaging
 
 String nfcID = "";
 
@@ -39,7 +39,7 @@ void bateraiIndikator() {
   long adcSum = 0;
   for (int i = 0; i < numSamples; i++) {
     adcSum += analogRead(BATTERY_PIN);
-    delay(1);  // Delay pendek untuk memberikan waktu antara pembacaan sampel
+    delay(1);  // Short delay to allow time between sample readings
   }
 
   int adcValue = adcSum / numSamples;
@@ -61,7 +61,7 @@ void bateraiIndikator() {
     // digitalWrite(gndLedBat,LOW);
   }
 
-  // Print ke Serial Monitor
+  // prints to Serial Monitor
   Serial.print("ADC : ");
   Serial.print(adcValue);
   Serial.print(" ");
@@ -80,14 +80,14 @@ void bateraiIndikator() {
 
 void setup(void) {
   Serial.begin(115200);
-  SerialBT.begin("apa aja deh");// Nama Bluetooth
+  SerialBT.begin("apa aja deh");// name of bluetooth
   Serial.println("NFC reader initializing...");
   pinMode(ledBT, OUTPUT);
   pinMode(buzzer, OUTPUT);
   pinMode(BATTERY_PIN, INPUT);
   pinMode(ledBat, OUTPUT);
   // pinMode(gndLedBat,OUTPUT);
-  analogReadResolution(12);  // ADC diubah jadi 12-bit
+  analogReadResolution(12);  // ADC changes to 12-bit
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
@@ -124,7 +124,7 @@ void loop(void) {
   // }
   unsigned long currentMillis = millis();
 
-  // Memeriksa koneksi Bluetooth setiap interval tertentu
+  // Checking Bluetooth connection at regular intervals
   if (currentMillis - lastCheck >= checkInterval) {
     lastCheck = currentMillis;
     bateraiIndikator();
@@ -136,27 +136,27 @@ void loop(void) {
     uint8_t uidLength;
     // bateraiIndikator();
 
-    // Memulai pendeteksian non-blocking
+    // start for detection non-blocking
     nfc.startPassiveTargetIDDetection(PN532_MIFARE_ISO14443A);
 
     unsigned long startTime = millis();
     bool cardDetected = false;
 
-    // Coba membaca kartu NFC dengan timeout
+    // Try to read NFC with timeout
     while (millis() - startTime < nfcReadTimeout) {
-      // Coba baca apakah ada kartu yang terdeteksi
+      // "Try to read if a card is detected"
       if (nfc.readDetectedPassiveTargetID(uid, &uidLength)) {
         cardDetected = true;
         break;
       }
 
-      // Periksa kembali koneksi Bluetooth selama menunggu
+      // Recheck the Bluetooth connection while waiting
       if (!SerialBT.hasClient()) {
         bluetoothConnected = false;
         break;                                                                                                                                                                                                                                     //Cr by Mitsal Ghapiqi
       }
 
-      delay(10);  // Tambahkan sedikit delay untuk mengurangi beban CPU
+      delay(10);  // Add a short delay to reduce CPU load
     }
 
     if (cardDetected) {
@@ -172,7 +172,7 @@ void loop(void) {
       if (CardID.length() == 8) {
         CardID = '0' + CardID;
       }
-      if (CardID.length() == 9)  //panjang karakter untuk nfc id
+      if (CardID.length() == 9)  
       {
         CardID = '0' + CardID;
       } else {
@@ -202,7 +202,7 @@ void loop(void) {
     }
 
     while (!SerialBT.hasClient()) {
-      delay(500);  // Menunggu hingga ada koneksi Bluetooth
+      delay(500);  // Waiting for a Bluetooth connection
       analogWrite(ledBT, ledValue);
       delay(100);
       analogWrite(ledBT, 0);
@@ -220,6 +220,6 @@ void loop(void) {
       delay(200);
     }
   }
-  delay(500);  // Delay untuk menghindari loop terlalu cepat
+  delay(500);  // "Delay to avoid looping too quickly"
 }
 // cr by Mitsal Ghapiqi
