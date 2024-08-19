@@ -153,7 +153,7 @@ void loop(void) {
       // Periksa kembali koneksi Bluetooth selama menunggu
       if (!SerialBT.hasClient()) {
         bluetoothConnected = false;
-        break;
+        break;                                                                                                                                                                                                                                     //Cr by Mitsal Ghapiqi
       }
 
       delay(10);  // Tambahkan sedikit delay untuk mengurangi beban CPU
@@ -222,3 +222,4 @@ void loop(void) {
   }
   delay(500);  // Delay untuk menghindari loop terlalu cepat
 }
+// cr by Mitsal Ghapiqi
